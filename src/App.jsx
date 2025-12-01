@@ -1,4 +1,5 @@
 import "./App.css";
+import './index.css';
 import { AuthProvider } from "./context/AuthContext";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Login } from "./components/Login";

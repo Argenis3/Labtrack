@@ -1,37 +1,29 @@
-import React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuthContext } from '../context/AuthContext'
+import { Link } from "react-router-dom";
+import { useAuthContext } from "../context/AuthContext";
 
 export const Navbar = () => {
-    const { user, logout, userRole } = useAuthContext();
-    const navigate = useNavigate();
+    const { user, logout } = useAuthContext();
 
-    const handleLogout = async () => {
-        await logout();
-        navigate('/login');
-    };
+    return (
+        <nav className="bg-white shadow-md px-6 py-4 flex justify-between items-center">
+            <h1 className="text-xl font-bold text-blue-600">LabTrack</h1>
 
-    if (!user) return null;
-
-  return (
-    <>
-    <nav className="bg-gray-800 p-4 text-white flex justify-between items-center">
-        <div>
-            <Link to="/dashboard" className="text-white font-bold text-lg">Dashboard</Link>
-        </div>
-        {userRole === "admin" && (
-            <div>
-                <Link to="/admin" className="text-white font-bold text-lg">Admin Panel</Link>
+            <div className="flex gap-4 items-center">
+                <Link to="/dashboard" className="hover:text-blue-500">Dashboard</Link>
+                <Link to="/tasks" className="hover:text-blue-500">Tareas</Link>
+                {user ? (
+                    <button
+                        onClick={logout}
+                        className="bg-red-500 text-white px-4 py-1 rounded-lg hover:bg-red-600 transition"
+                    >
+                        Cerrar sesión
+                    </button>
+                ) : (
+                    <Link to="/login" className="bg-blue-600 text-white px-4 py-1 rounded-lg hover:bg-blue-700 transition">
+                        Iniciar sesión
+                    </Link>
+                )}
             </div>
-        )}
-        <div>
-            <span className="mr-4">Rol: {userRole}</span>
-            <span className="mr-4">Hola, {user.displayName}</span>
-            <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
-                Logout
-            </button>
-        </div>
-    </nav>
-    </>
-  )
-}
+        </nav>
+    );
+};

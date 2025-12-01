@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  collection, 
+  collection, // lo que hace es importar la colección de Firestore
   query, 
   where, 
   getDocs,
@@ -9,7 +9,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuthContext } from '../context/AuthContext';
-import Navbar from '../components/Navbar';
+import { Navbar } from '../components/Navbar';
 import { 
   Package, // lo que hace es importar el icono Package de la librería lucide-react
   Clock,  // lo que hace es importar el icono Clock de la librería lucide-react
@@ -23,7 +23,7 @@ import {
   Archive
 } from 'lucide-react';
 
-const Dashboard = () => {
+export const Dashboard = () => {
   const { user, userRole } = useAuthContext();
   const navigate = useNavigate();
   const isAdmin = userRole === 'admin';
@@ -577,5 +577,3 @@ const Dashboard = () => {
     </div>
   );
 };
-
-export default Dashboard;
