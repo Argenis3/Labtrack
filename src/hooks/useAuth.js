@@ -1,5 +1,4 @@
 // src/hooks/useAuth.js
-//hacer una nueva página donde el admin pueda ver los datos de firebase
 import { useState, useEffect } from "react";
 import {
   createUserWithEmailAndPassword,
@@ -16,6 +15,7 @@ import { auth, db } from "../config/firebase";
 export const useAuth = () => {
   const [user, setUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [userName, setUserName] = useState(null);   // ⬅ Nuevo
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -24,14 +24,20 @@ export const useAuth = () => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+
         if (userDoc.exists()) {
-          setUserRole(userDoc.data().role);
+          const data = userDoc.data();
+          setUserRole(data.role);
+          setUserName(data.name || null); // ⬅ Nuevo
         }
+
         setUser(currentUser);
       } else {
         setUser(null);
         setUserRole(null);
+        setUserName(null); // ⬅ Nuevo
       }
+
       setLoading(false);
     });
 
@@ -39,21 +45,27 @@ export const useAuth = () => {
   }, []);
 
   // Registrar un nuevo usuario
-  const register = async (email, password, role = "user") => {
+  const register = async (email, password, role = "user", name = "") => {
     try {
       setError(null);
+
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
-      // Guardar el rol del usuario en Firestore
+
+      // Guardar el rol + nombre del usuario en Firestore
       await setDoc(doc(db, "users", userCredential.user.uid), {
-        role: role,
-        email: email,
+        role,
+        email,
+        name,              // ⬅ Guardado de nombre
         createdAt: new Date(),
       });
+
       setUserRole(role);
+      setUserName(name);   // ⬅ Guardar nombre en estado
+
       return { success: true, user: userCredential.user };
     } catch (error) {
       console.error("Error al registrar usuario:", error);
@@ -66,15 +78,21 @@ export const useAuth = () => {
   const login = async (email, password) => {
     try {
       setError(null);
+
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
         password
       );
+
       const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
+
       if (userDoc.exists()) {
-        setUserRole(userDoc.data().role);
+        const data = userDoc.data();
+        setUserRole(data.role);
+        setUserName(data.name || null); // ⬅ Recuperar nombre
       }
+
       return { success: true, user: userCredential.user };
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
@@ -89,6 +107,7 @@ export const useAuth = () => {
       setError(null);
       await signOut(auth);
       setUserRole(null);
+      setUserName(null);
       return { success: true };
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
@@ -96,9 +115,11 @@ export const useAuth = () => {
       return { success: false, error: error.message };
     }
   };
+
   return {
     user,
     userRole,
+    userName,     // ⬅ Exportar nombre
     loading,
     error,
     register,

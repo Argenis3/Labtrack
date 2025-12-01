@@ -1,62 +1,154 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
 
 export const Register = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState(null);
-    const { register } = useAuthContext();
+  const navigate = useNavigate();
+  const { register } = useAuthContext();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const result = await register(email, password);
-        if (!result.success) setError(result.error);
+  const [form, setForm] = useState({
+    name: "",
+    lastName: "",
+    matricula: "",
+    carrera: "",
+    email: "",
+    password: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    const userData = {
+      name: form.name,
+      lastName: form.lastName,
+      matricula: form.matricula,
+      carrera: form.carrera,
     };
 
-    return (
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-purple-100 to-blue-100">
-            <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md animate-fadeIn">
-                <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">Crear Cuenta</h2>
+    const result = await register(form.email, form.password, userData);
 
-                {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+    setLoading(false);
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-gray-700 mb-2">Email</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-purple-400 transition"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-gray-700 mb-2">Contraseña</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-purple-400 transition"
-                            required
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        className="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition font-semibold"
-                    >
-                        Registrarme
-                    </button>
-                </form>
+    if (result.success) navigate("/dashboard");
+    else setError(result.error);
+  };
 
-                <p className="mt-6 text-center text-gray-600">
-                    ¿Ya tienes cuenta?{" "}
-                    <Link to="/login" className="text-purple-600 font-bold hover:underline">
-                        Inicia sesión
-                    </Link>
-                </p>
-            </div>
-        </div>
-    );
+  return (
+    <div className="min-h-screen flex justify-center items-center bg-gray-100">
+      <div className="w-full max-w-md bg-white p-10 rounded-2xl shadow-sm border border-gray-200">
+        
+        <h1 className="text-2xl font-semibold text-gray-900 text-center">
+          Crear cuenta
+        </h1>
+
+        <p className="text-gray-500 text-center mt-2 mb-6">
+          Regístrate para usar LabTrack
+        </p>
+
+        {error && (
+          <p className="text-red-500 bg-red-100 p-2 rounded text-center text-sm">
+            {error}
+          </p>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+
+          <div>
+            <label className="text-gray-700 text-sm">Nombre</label>
+            <input
+              name="name"
+              type="text"
+              className="w-full mt-1 px-4 py-3 border rounded-lg"
+              value={form.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-700 text-sm">Apellido</label>
+            <input
+              name="lastName"
+              type="text"
+              className="w-full mt-1 px-4 py-3 border rounded-lg"
+              value={form.lastName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-700 text-sm">Matrícula</label>
+            <input
+              name="matricula"
+              type="text"
+              className="w-full mt-1 px-4 py-3 border rounded-lg"
+              value={form.matricula}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-700 text-sm">Carrera</label>
+            <input
+              name="carrera"
+              type="text"
+              className="w-full mt-1 px-4 py-3 border rounded-lg"
+              value={form.carrera}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-700 text-sm">Correo</label>
+            <input
+              name="email"
+              type="email"
+              className="w-full mt-1 px-4 py-3 border rounded-lg"
+              value={form.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-700 text-sm">Contraseña</label>
+            <input
+              name="password"
+              type="password"
+              className="w-full mt-1 px-4 py-3 border rounded-lg"
+              value={form.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <button
+            disabled={loading}
+            className="w-full py-3 rounded-lg bg-gray-900 text-white hover:bg-black transition font-medium"
+          >
+            {loading ? "Creando cuenta..." : "Registrarse"}
+          </button>
+        </form>
+
+        <p className="text-center text-gray-600 mt-6 text-sm">
+          ¿Ya tienes una cuenta?
+          <Link className="text-gray-900 font-medium hover:underline ml-1" to="/login">
+            Inicia sesión
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
 };

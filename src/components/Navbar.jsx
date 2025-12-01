@@ -1,29 +1,29 @@
 import { Link } from "react-router-dom";
-import { useAuthContext } from "../context/AuthContext";
 
 export const Navbar = () => {
-    const { user, logout } = useAuthContext();
+  return (
+    <nav className="w-full bg-white border-b border-gray-200 shadow-sm px-6 py-3 flex items-center justify-between">
 
-    return (
-        <nav className="bg-white shadow-md px-6 py-4 flex justify-between items-center">
-            <h1 className="text-xl font-bold text-blue-600">LabTrack</h1>
+      <Link to="/" className="text-xl font-semibold text-gray-900 tracking-tight">
+        LabTrack
+      </Link>
 
-            <div className="flex gap-4 items-center">
-                <Link to="/dashboard" className="hover:text-blue-500">Dashboard</Link>
-                <Link to="/tasks" className="hover:text-blue-500">Tareas</Link>
-                {user ? (
-                    <button
-                        onClick={logout}
-                        className="bg-red-500 text-white px-4 py-1 rounded-lg hover:bg-red-600 transition"
-                    >
-                        Cerrar sesión
-                    </button>
-                ) : (
-                    <Link to="/login" className="bg-blue-600 text-white px-4 py-1 rounded-lg hover:bg-blue-700 transition">
-                        Iniciar sesión
-                    </Link>
-                )}
-            </div>
-        </nav>
-    );
+      <div className="flex items-center gap-6">
+        <Link className="text-gray-700 hover:text-black transition" to="/dashboard">
+          Dashboard
+        </Link>
+
+        <Link className="text-gray-700 hover:text-black transition" to="/profile">
+          Perfil
+        </Link>
+
+        <Link
+          to="/login"
+          className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+        >
+          Cerrar sesión
+        </Link>
+      </div>
+    </nav>
+  );
 };

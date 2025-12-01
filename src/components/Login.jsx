@@ -1,75 +1,84 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
 
 export const Login = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-    const { login } = useAuthContext();
-    const navigate = useNavigate();
+  const { login } = useAuthContext();
+  const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
-        const result = await login(email, password);
-        setLoading(false);
-        if (result.success) {
-            navigate("/dashboard");
-        } else {
-            setError(result.error);
-        }
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-    return (
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-100 to-purple-100">
-            <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md animate-fadeIn">
-                <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">Iniciar Sesión</h2>
+    const result = await login(email, password);
+    setLoading(false);
 
-                {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+    if (result.success) navigate("/dashboard");
+    else setError(result.error);
+  };
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-gray-700 mb-2">Email</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-blue-400 transition"
-                            required
-                        />
-                    </div>
+  return (
+    <div className="min-h-screen flex justify-center items-center bg-gray-100">
+      <div className="w-full max-w-md bg-white p-10 rounded-2xl shadow-sm border border-gray-200">
 
-                    <div>
-                        <label className="block text-gray-700 mb-2">Contraseña</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-blue-400 transition"
-                            required
-                        />
-                    </div>
+        <h1 className="text-2xl font-semibold text-gray-900 text-center">
+          Inicia sesión
+        </h1>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-semibold"
-                    >
-                        {loading ? "Cargando..." : "Iniciar Sesión"}
-                    </button>
-                </form>
+        <p className="text-gray-500 text-center mt-2 mb-6">
+          Accede a tu cuenta para continuar
+        </p>
 
-                <p className="mt-6 text-center text-gray-600">
-                    ¿No tienes una cuenta?{" "}
-                    <Link to="/register" className="text-blue-600 font-bold hover:underline">
-                        Regístrate aquí
-                    </Link>
-                </p>
-            </div>
-        </div>
-    );
+        {error && (
+          <p className="text-red-500 bg-red-100 p-2 mb-4 rounded text-center text-sm">
+            {error}
+          </p>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="text-gray-700 text-sm">Correo</label>
+            <input
+              type="email"
+              className="w-full mt-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-0 focus:border-gray-400 transition text-gray-800"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-700 text-sm">Contraseña</label>
+            <input
+              type="password"
+              className="w-full mt-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-0 focus:border-gray-400 transition text-gray-800"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button
+            disabled={loading}
+            className="w-full py-3 rounded-lg bg-gray-900 text-white hover:bg-black transition font-medium"
+          >
+            {loading ? "Entrando..." : "Iniciar sesión"}
+          </button>
+        </form>
+
+        <p className="text-center text-gray-600 mt-6 text-sm">
+          ¿No tienes una cuenta?
+          <Link className="text-gray-900 font-medium hover:underline ml-1" to="/register">
+            Regístrate
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
 };
