@@ -3,7 +3,7 @@ import './index.css';
 import { AuthProvider } from "./context/AuthContext";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Login } from "./components/Login";
-import { Register } from "./components/Register";
+import Register from "./components/Register";
 import { Dashboard } from "./pages/Dashboard";
 import { AdminPanel } from "./pages/AdminPanel";
 import { AdminUsers } from "./pages/AdminUsers";

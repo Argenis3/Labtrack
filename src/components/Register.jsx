@@ -1,154 +1,170 @@
+// src/pages/Register.jsx
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-export const Register = () => {
+const Register = () => {
+  const { register, error } = useAuthContext();
   const navigate = useNavigate();
-  const { register } = useAuthContext();
 
-  const [form, setForm] = useState({
+  // Estado del formulario
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
     name: "",
     lastName: "",
     matricula: "",
     carrera: "",
-    email: "",
-    password: "",
+    role: "student", // student | admin
   });
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
-  const handleSubmit = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
 
-    const userData = {
-      name: form.name,
-      lastName: form.lastName,
-      matricula: form.matricula,
-      carrera: form.carrera,
+    const payload = {
+      email: formData.email,
+      password: formData.password,
+      name: formData.name,
+      lastName: formData.lastName,
+      role: formData.role,
     };
 
-    const result = await register(form.email, form.password, userData);
+    // Si es usuario normal → agregar datos adicionales
+    if (formData.role === "student") {
+      payload.matricula = formData.matricula;
+      payload.carrera = formData.carrera;
+    }
 
-    setLoading(false);
+    const res = await register(payload);
 
-    if (result.success) navigate("/dashboard");
-    else setError(result.error);
+    if (res.success) {
+      navigate("/dashboard");
+    }
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gray-100">
-      <div className="w-full max-w-md bg-white p-10 rounded-2xl shadow-sm border border-gray-200">
-        
-        <h1 className="text-2xl font-semibold text-gray-900 text-center">
-          Crear cuenta
-        </h1>
+    <div className="max-w-lg mx-auto mt-10 p-8 bg-white rounded-xl shadow-lg">
+      <h2 className="text-2xl font-bold text-center mb-6">
+        Crear cuenta
+      </h2>
 
-        <p className="text-gray-500 text-center mt-2 mb-6">
-          Regístrate para usar LabTrack
-        </p>
+      <form onSubmit={handleRegister} className="space-y-4">
 
-        {error && (
-          <p className="text-red-500 bg-red-100 p-2 rounded text-center text-sm">
-            {error}
-          </p>
+        {/* Nombre */}
+        <div>
+          <label className="block font-medium">Nombre</label>
+          <input
+            type="text"
+            name="name"
+            className="w-full p-2 border rounded"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        {/* Apellido */}
+        <div>
+          <label className="block font-medium">Apellido</label>
+          <input
+            type="text"
+            name="lastName"
+            className="w-full p-2 border rounded"
+            value={formData.lastName}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        {/* Email */}
+        <div>
+          <label className="block font-medium">Correo</label>
+          <input
+            type="email"
+            name="email"
+            className="w-full p-2 border rounded"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        {/* Password */}
+        <div>
+          <label className="block font-medium">Contraseña</label>
+          <input
+            type="password"
+            name="password"
+            className="w-full p-2 border rounded"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        {/* Selección de rol */}
+        <div>
+          <label className="block font-medium">Tipo de usuario</label>
+          <select
+            name="role"
+            className="w-full p-2 border rounded"
+            value={formData.role}
+            onChange={handleChange}
+          >
+            <option value="student">Usuario (Estudiante)</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+
+        {/* Campos EXCLUSIVOS del rol = student */}
+        {formData.role === "student" && (
+          <>
+            <div>
+              <label className="block font-medium">Matrícula</label>
+              <input
+                type="text"
+                name="matricula"
+                className="w-full p-2 border rounded"
+                value={formData.matricula}
+                onChange={handleChange}
+                required={formData.role === "student"}
+              />
+            </div>
+
+            <div>
+              <label className="block font-medium">Carrera</label>
+              <input
+                type="text"
+                name="carrera"
+                className="w-full p-2 border rounded"
+                value={formData.carrera}
+                onChange={handleChange}
+                required={formData.role === "student"}
+              />
+            </div>
+          </>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Error */}
+        {error && <p className="text-red-500 text-sm">{error}</p>}
 
-          <div>
-            <label className="text-gray-700 text-sm">Nombre</label>
-            <input
-              name="name"
-              type="text"
-              className="w-full mt-1 px-4 py-3 border rounded-lg"
-              value={form.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="text-gray-700 text-sm">Apellido</label>
-            <input
-              name="lastName"
-              type="text"
-              className="w-full mt-1 px-4 py-3 border rounded-lg"
-              value={form.lastName}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="text-gray-700 text-sm">Matrícula</label>
-            <input
-              name="matricula"
-              type="text"
-              className="w-full mt-1 px-4 py-3 border rounded-lg"
-              value={form.matricula}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="text-gray-700 text-sm">Carrera</label>
-            <input
-              name="carrera"
-              type="text"
-              className="w-full mt-1 px-4 py-3 border rounded-lg"
-              value={form.carrera}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="text-gray-700 text-sm">Correo</label>
-            <input
-              name="email"
-              type="email"
-              className="w-full mt-1 px-4 py-3 border rounded-lg"
-              value={form.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="text-gray-700 text-sm">Contraseña</label>
-            <input
-              name="password"
-              type="password"
-              className="w-full mt-1 px-4 py-3 border rounded-lg"
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <button
-            disabled={loading}
-            className="w-full py-3 rounded-lg bg-gray-900 text-white hover:bg-black transition font-medium"
-          >
-            {loading ? "Creando cuenta..." : "Registrarse"}
-          </button>
-        </form>
-
-        <p className="text-center text-gray-600 mt-6 text-sm">
-          ¿Ya tienes una cuenta?
-          <Link className="text-gray-900 font-medium hover:underline ml-1" to="/login">
-            Inicia sesión
-          </Link>
-        </p>
-      </div>
+        {/* Botón */}
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white p-3 rounded hover:bg-blue-700 transition"
+        >
+          Registrar
+        </button>
+      </form>
     </div>
   );
 };
+
+export default Register;

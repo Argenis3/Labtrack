@@ -192,7 +192,7 @@ export const Dashboard = () => {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">
-              {isAdmin ? 'Panel de Administración 🔧' : `¡Bienvenido, ${userData?.nombre}! 👋`}
+              {isAdmin ? 'Panel de Administración 🔧' : `¡Bienvenido, ${user?.displayName || "Usuario"}! 👋`}
             </h1>
             <p className="text-gray-600 mt-2">
               {isAdmin 

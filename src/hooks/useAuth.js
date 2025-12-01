@@ -1,4 +1,3 @@
-// src/hooks/useAuth.js
 import { useState, useEffect } from "react";
 import {
   createUserWithEmailAndPassword,
@@ -9,99 +8,103 @@ import {
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
 
-/**
- * Hook personalizado para manejar la autenticación con Firebase
- */
 export const useAuth = () => {
   const [user, setUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
-  const [userName, setUserName] = useState(null);   // ⬅ Nuevo
+  const [userName, setUserName] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Escuchar cambios en el estado de autenticación
+  // ✔ Mantener sesión
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-
         if (userDoc.exists()) {
           const data = userDoc.data();
           setUserRole(data.role);
-          setUserName(data.name || null); // ⬅ Nuevo
+          setUserName(data.name);
         }
-
         setUser(currentUser);
       } else {
         setUser(null);
         setUserRole(null);
-        setUserName(null); // ⬅ Nuevo
+        setUserName(null);
       }
-
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
-  // Registrar un nuevo usuario
-  const register = async (email, password, role = "user", name = "") => {
+  // ⭐ REGISTRO FINAL, LIMPIO Y FUNCIONAL ⭐
+  const register = async (payload) => {
     try {
       setError(null);
 
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
+      const {
         email,
-        password
-      );
-
-      // Guardar el rol + nombre del usuario en Firestore
-      await setDoc(doc(db, "users", userCredential.user.uid), {
+        password,
         role,
+        name,
+        lastName,
+        matricula,
+        carrera,
+      } = payload;
+
+      // 1) Crear usuario en Auth
+      const res = await createUserWithEmailAndPassword(auth, email, password);
+      const uid = res.user.uid;
+
+      // 2) Construir objeto FINAL asegurando que no haya undefined
+      const userData = {
+        uid,
         email,
-        name,              // ⬅ Guardado de nombre
-        createdAt: new Date(),
-      });
+        role,
+        name,
+        lastName,
+        createdAt: Date.now(),
+        matricula: role === "student" ? matricula : "",
+        carrera: role === "student" ? carrera : "",
+      };
+
+      // 3) Guardar en Firestore
+      await setDoc(doc(db, "users", uid), userData);
 
       setUserRole(role);
-      setUserName(name);   // ⬅ Guardar nombre en estado
+      setUserName(name);
 
-      return { success: true, user: userCredential.user };
-    } catch (error) {
-      console.error("Error al registrar usuario:", error);
-      setError(error.message);
-      return { success: false, error: error.message };
+      return { success: true };
+    } catch (err) {
+      console.error("Error al registrar usuario:", err);
+      setError(err.message);
+      return { success: false, error: err.message };
     }
   };
 
-  // Iniciar sesión
+  // ✔ LOGIN
   const login = async (email, password) => {
     try {
       setError(null);
 
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      const res = await signInWithEmailAndPassword(auth, email, password);
 
-      const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
-
+      const userDoc = await getDoc(doc(db, "users", res.user.uid));
       if (userDoc.exists()) {
         const data = userDoc.data();
         setUserRole(data.role);
-        setUserName(data.name || null); // ⬅ Recuperar nombre
+        setUserName(data.name);
       }
 
-      return { success: true, user: userCredential.user };
-    } catch (error) {
-      console.error("Error al iniciar sesión:", error);
-      setError(error.message);
-      return { success: false, error: error.message };
+      return { success: true, user: res.user };
+    } catch (err) {
+      console.error("Error al iniciar sesión:", err);
+      setError(err.message);
+      return { success: false, error: err.message };
     }
   };
 
-  // Cerrar sesión
+  // ✔ LOGOUT
   const logout = async () => {
     try {
       setError(null);
@@ -109,17 +112,17 @@ export const useAuth = () => {
       setUserRole(null);
       setUserName(null);
       return { success: true };
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-      setError(error.message);
-      return { success: false, error: error.message };
+    } catch (err) {
+      console.error("Error al cerrar sesión:", err);
+      setError(err.message);
+      return { success: false, error: err.message };
     }
   };
 
   return {
     user,
     userRole,
-    userName,     // ⬅ Exportar nombre
+    userName,
     loading,
     error,
     register,
