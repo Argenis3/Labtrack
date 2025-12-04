@@ -37,7 +37,7 @@ export const useAuth = () => {
     return () => unsubscribe();
   }, []);
 
-  // ⭐ REGISTRO FINAL, LIMPIO Y FUNCIONAL ⭐
+  
   const register = async (payload) => {
     try {
       setError(null);
