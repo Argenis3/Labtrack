@@ -13,12 +13,14 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Dashboard } from "./pages/Dashboard";
 import { AdminPanel } from "./pages/AdminPanel";
 import { AdminUsers } from "./pages/AdminUsers";
-import Materials from "./pages/Materials";
-import MaterialDetail from "./pages/MaterialDetail";
-import NewRequest from "./pages/NewRequest";
-import MyRequests from "./pages/MyRequests";
-import AdminRequests from "./pages/AdminRequests";
-import Inventory from "./pages/Inventory";
+
+// NUEVAS PÁGINAS DE MATERIALES
+import { AdminMaterials } from "./pages/AdminMaterials";
+import { MaterialsPage } from "./pages/MaterialsPage";
+
+// PÁGINAS DE SOLICITUDES
+import { MyRequests } from "./pages/MyRequests";
+import { AdminRequests } from "./pages/AdminRequests";
 
 function App() {
   return (
@@ -29,11 +31,15 @@ function App() {
           {/* Redirección raíz */}
           <Route path="/" element={<Navigate to="/login" replace />} />
 
-          {/* Rutas públicas */}
+          {/* ========================================
+              RUTAS PÚBLICAS
+          ======================================== */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Rutas protegidas GENERALES */}
+          {/* ========================================
+              DASHBOARD (PROTEGIDO)
+          ======================================== */}
           <Route
             path="/dashboard"
             element={
@@ -43,34 +49,41 @@ function App() {
             }
           />
 
-          {/* CATÁLOGO Y SOLICITUDES */}
+          {/* ========================================
+              CATÁLOGO DE MATERIALES (USUARIOS)
+          ======================================== */}
+          
+          {/* Ver catálogo completo - PARA TODOS LOS USUARIOS */}
           <Route
             path="/materials"
             element={
               <ProtectedRoute>
-                <Materials />
+                <MaterialsPage />
               </ProtectedRoute>
             }
           />
 
-          <Route
+          {/* Detalle de material específico */}
+          {/* <Route
             path="/materials/:id"
             element={
               <ProtectedRoute>
                 <MaterialDetail />
               </ProtectedRoute>
             }
-          />
+          /> */}
 
-          <Route
+          {/* Nueva solicitud de préstamo */}
+          {/* <Route
             path="/request/new/:id"
             element={
               <ProtectedRoute>
                 <NewRequest />
               </ProtectedRoute>
             }
-          />
+          /> */}
 
+          {/* Mis solicitudes */}
           <Route
             path="/my-requests"
             element={
@@ -80,17 +93,11 @@ function App() {
             }
           />
 
-          {/* INVENTARIO GENERAL */}
-          <Route
-            path="/inventory"
-            element={
-              <ProtectedRoute requireAdmin={true}>
-                <Inventory />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* ZONA ADMIN */}
+          {/* ========================================
+              ZONA ADMINISTRATIVA
+          ======================================== */}
+          
+          {/* Panel principal de admin */}
           <Route
             path="/admin"
             element={
@@ -100,6 +107,7 @@ function App() {
             }
           />
 
+          {/* Gestión de usuarios */}
           <Route
             path="/admin/users"
             element={
@@ -109,6 +117,17 @@ function App() {
             }
           />
 
+          {/* GESTIÓN DE MATERIALES (ADMIN) - NUEVO */}
+          <Route
+            path="/admin/materials"
+            element={
+              <ProtectedRoute requireAdmin={true}>
+                <AdminMaterials />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Gestión de solicitudes */}
           <Route
             path="/admin/requests"
             element={
@@ -118,7 +137,19 @@ function App() {
             }
           />
 
-          {/* Catch-all */}
+          {/* Inventario general */}
+          {/* <Route
+            path="/inventory"
+            element={
+              <ProtectedRoute requireAdmin={true}>
+                <Inventory />
+              </ProtectedRoute>
+            }
+          /> */}
+
+          {/* ========================================
+              CATCH-ALL (404)
+          ======================================== */}
           <Route path="*" element={<Navigate to="/login" replace />} />
 
         </Routes>
